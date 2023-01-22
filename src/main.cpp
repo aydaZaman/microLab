@@ -12,9 +12,6 @@ int _D2;
 int _D3;
 int last =0;
 
-
-
-
 int photoCellsOutput(){
     int photoCell1=map(_A0, 0, 1023, 0, 100);
     int photoCell2=map(_A1, 0, 1023, 0, 100);
@@ -46,6 +43,25 @@ int autoLightMode(){
   return dutyCycle;
 
 }
+int manualLightMode(){
+   if (Serial.available() > 0) {
+    // Read in request
+    int readInt = Serial.parseInt();
+    return readInt;
+
+}
+}
+int manualTempMode(){
+   if (Serial.available() > 0) {
+    // Read in request
+    int readInt = Serial.parseInt();
+    return readInt;
+//        digitalWrite(ledPin, HIGH);
+  //      if (Serial.availableForWrite()) {
+    //      Serial.println("Message received.");
+        
+   }
+}
 
 int autoTempMode(){
   int temp=LM35Output();
@@ -71,21 +87,28 @@ int autoTempMode(){
 }
 
 void tempControl(int mode){
-    if(mode==0){
-    int temp=autoTempMode();
-    digitalWrite(D5, temp) ;
-    }
+    int temp;
 
-    //else
+    if(mode==0)
+      temp=autoTempMode();
+
     //manuall
+    else
+      temp=manualTempMode();  
+
+  digitalWrite(D5, temp);
+
 }
 void lightControl(int mode){
-    if(mode==0){
-      int light=autoLightMode();
-      digitalWrite(D6, light ) ;
-}
-    //else
-    //manuall
+    int light;
+    if(mode==0)
+      light=autoLightMode();
+
+    //manuall    
+    else
+      light=manualLightMode();
+    digitalWrite(D6, light ) ;
+
 }
 
 void setup() {
@@ -97,6 +120,9 @@ void setup() {
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);  
   pinMode(A2, INPUT);  
+
+// initialize serial communication
+  Serial.begin(9600);
 }
 
 
@@ -112,24 +138,31 @@ void loop() {
     _D2=digitalRead(D2);
     _D3=digitalRead(D3);
 
-    switch (_D3){
-    case 0 :
-      tempControl(0);
-      break;
-    
-    default:
-      tempControl(1); 
-      break;
-    }
-
     switch (_D2){
-    case 0:
-      lightControl(0);
-      break;
+      case 0:
+        lightControl(0);
+        break;
 
-    default:
-      lightControl(1);
-      break;
-    }
+      case 1:
+        if (Serial.availableForWrite()) {
+            Serial.println("L"); 
+           }
+           lightControl(1);
+        break;
+      }
   }
+
+    switch (_D3){
+      case 0 :
+        tempControl(0);
+        break;
+      
+      case 1:
+        if (Serial.availableForWrite()) {
+            Serial.println("T");
+        }
+        tempControl(1); 
+        break;
+    }
+
 }
