@@ -67,7 +67,7 @@ int autoTempMode(){
 void tempControl(int mode){
     if(mode==0){
     int temp=autoTempMode();
-    analogWrite (D5, temp) ;
+      digitalWrite(D5, temp) ;
     }
 
     //else
@@ -76,7 +76,7 @@ void tempControl(int mode){
 void lightControl(int mode){
     if(mode==0){
       int light=autoLightMode();
-      analogWrite (D6, light ) ;
+      digitalWrite(D6, light ) ;
 }
     //else
     //manuall
