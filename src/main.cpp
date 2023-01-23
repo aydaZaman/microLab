@@ -8,15 +8,21 @@
 int _A2;
 int _A1;
 int _A0;
+int _D2;
+int _D3;
+int last =0;
+
+
+
 
 int photoCellsOutput(){
     int photoCell1=map(_A0, 0, 1023, 0, 100);
     int photoCell2=map(_A1, 0, 1023, 0, 100);
-    return photoCell1 + photoCell2 / 2;
+    return (photoCell1 + photoCell2) / 2;
 }
 
 int LM35Output(){
-    int tempA2=map(_A2, -1.0, 6, -55, 150);
+    int tempA2=map(_A2, 0, 5, 0, 150);
     return tempA2;
 }
 
@@ -67,7 +73,7 @@ int autoTempMode(){
 void tempControl(int mode){
     if(mode==0){
     int temp=autoTempMode();
-      digitalWrite(D5, temp) ;
+    analogWrite(D5, (temp/100)*255);
     }
 
     //else
@@ -76,7 +82,7 @@ void tempControl(int mode){
 void lightControl(int mode){
     if(mode==0){
       int light=autoLightMode();
-      digitalWrite(D6, light ) ;
+      analogWrite(D6, (light/100)*255);
 }
     //else
     //manuall
@@ -91,32 +97,39 @@ void setup() {
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);  
   pinMode(A2, INPUT);  
-  _A0=analogRead(A0); 
-  _A1=analogRead(A1);
-  _A2=analogRead(A2);
 }
 
 
 void loop() {
-// put your main code here, to run repeatedly:
-  switch (D3){
-  case 0 :
-    tempControl(0);
-    break;
-  
-  default:
-    tempControl(1); 
-    break;
+// put your main code here, to run repeatedly: 
+  int current = millis();
+
+  if(current - last >= 2){
+    last = millis();
+    _A0=analogRead(A0); 
+    _A1=analogRead(A1);
+    _A2=analogRead(A2);
+    _D2=digitalRead(D2);
+    _D3=digitalRead(D3);
+
+    switch (_D3){
+    case 0 :
+      tempControl(0);
+      break;
+    
+    default:
+      tempControl(1); 
+      break;
+    }
+
+    switch (_D2){
+    case 0:
+      lightControl(0);
+      break;
+
+    default:
+      lightControl(1);
+      break;
+    }
   }
-
-  switch (D3){
-  case 0:
-    lightControl(0);
-    break;
-
-  default:
-    lightControl(1);
-    break;
-  }
-
 }
